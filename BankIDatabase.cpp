@@ -44,18 +44,18 @@ enum CheckOptions
 
 struct TreeDepositors // структура для представления узлов дерева
 {
-	Depositor depositor;
+	Depositor DepositorData;
 	int Option;
-	int size;
+	int DepthNodes;
 	TreeDepositors* left;
 	TreeDepositors* right;
-	TreeDepositors(int k, Depositor data) {depositor = data, Option = k; left = right = 0; size = 1; }
+	TreeDepositors(int CurrentOption, Depositor Data) {DepositorData = Data, Option = CurrentOption; left = right = 0; DepthNodes = 1; }
 
 };
 
-void menu_choice(std::vector<Depositor>& Depositors); // прототип меню
-void menu(std::vector<Depositor>& Depositors); // прототип меню
-void sub_menu_choice(std::vector<Depositor>& Depositors, std::string Option);
+void Menu_choice(std::vector<Depositor>& Depositors); // прототип меню
+void Menu(std::vector<Depositor>& Depositors); // прототип меню
+void Sub_menu_choice(std::vector<Depositor>& Depositors, std::string Option);
 void SubMenu(std::vector<Depositor>& Depositors, std::string Option);
 int m_count = 0;
 int sub_m_count = 0;
@@ -63,27 +63,6 @@ std::vector<std::string> MenuOptions{ "Показать всех вкладчи�
 std::vector<std::string> SubMenuOptions{ "По фамилии", "По имени","По отчеству","По номеру вклада","По размеру вклада","По длительности","Назад", };
 
 const int NotUsed = system("color 70"); // изменения цвета консоли в серый 
-
-int checkdigit()
-{
-	while (true)
-	{
-		int value;
-		// вводим число, которое хотим представить в двоичной форме
-		std::cin >> value; // число целое
-		if (std::cin.fail()) // ecли предыдущее извелечение оказлось неудачным,
-		{
-			std::cin.clear(); // то возвращаем cin в обычный режим работы
-			std::cin.ignore(32767, '\n'); // и удаляем из буфера значения предыдущего ввода 
-			std::cout << "Недопустимое заданное число. Введите число правильно" << '\n';
-		}
-		else
-		{
-			std::cin.ignore(32767, '\n'); // удаляем из буфера значения предыдущего ввода 
-			return value;
-		}
-	}
-}
 
 void FillDepositorsDataBase(std::vector<Depositor>& Depositors, std::ifstream& fin)
 {
@@ -276,57 +255,57 @@ CheckOptions CheckEqualTreeValues(Depositor& FirstDepositor, Depositor& SecondDe
 	}
 }
 
-void quickSort(std::vector<Depositor>& Depositors, int left, int right, int key)
+void QuickSort(std::vector<Depositor>& Depositors, int LeftValueBorder, int RightValueBorder, int Key)
 {
-	Depositor pivot; // разрешающий элемент
-	int l_hold = left; //левая граница
-	int r_hold = right; // правая граница
-	pivot = Depositors[left];
+	Depositor Pivot; // разрешающий элемент
+	int l_hold = LeftValueBorder; //левая граница
+	int r_hold = RightValueBorder; // правая граница
+	Pivot = Depositors[LeftValueBorder];
 	CheckOptions checkOptionValue;
-	while (left < right) // пока границы не сомкнутся
+	while (LeftValueBorder< RightValueBorder) // пока границы не сомкнутся
 	{
-		checkOptionValue = CheckEqualValues(Depositors[right], pivot, key, NULL, key);
-		while ((checkOptionValue == EQUAL || checkOptionValue  == MORE) && (left < right))
+		checkOptionValue = CheckEqualValues(Depositors[RightValueBorder], Pivot, Key, NULL, Key);
+		while ((checkOptionValue == EQUAL || checkOptionValue  == MORE) && (LeftValueBorder< RightValueBorder))
 		{
-			right--; // сдвигаем правую границу пока элемент [right] больше [pivot]
-			checkOptionValue = CheckEqualValues(Depositors[right], pivot, key, NULL, key);
+			RightValueBorder--; // сдвигаем правую границу пока элемент [RightValueBorder] больше [Pivot]
+			checkOptionValue = CheckEqualValues(Depositors[RightValueBorder], Pivot, Key, NULL, Key);
 		}
 
-		if (left != right) // если границы не сомкнулись
+		if (LeftValueBorder!= RightValueBorder) // если границы не сомкнулись
 		{
-			Depositors[left] = Depositors[right]; // перемещаем элемент [right] на место разрешающего
-			left++; // сдвигаем левую границу вправо
+			Depositors[LeftValueBorder] = Depositors[RightValueBorder]; // перемещаем элемент [RightValueBorder] на место разрешающего
+			LeftValueBorder++; // сдвигаем левую границу вправо
 		}
 
-		checkOptionValue = CheckEqualValues(Depositors[left], pivot, key, NULL, key);
-		while ((checkOptionValue == EQUAL || checkOptionValue == LESS) && (left < right))
+		checkOptionValue = CheckEqualValues(Depositors[LeftValueBorder], Pivot, Key, NULL, Key);
+		while ((checkOptionValue == EQUAL || checkOptionValue == LESS) && (LeftValueBorder< RightValueBorder))
 		{
-			left++; // сдвигаем левую границу пока элемент [left] меньше [pivot]
-			checkOptionValue = CheckEqualValues(Depositors[left], pivot, key, NULL, key);
+			LeftValueBorder++; // сдвигаем левую границу пока элемент [LeftValueBorder] меньше [Pivot]
+			checkOptionValue = CheckEqualValues(Depositors[LeftValueBorder], Pivot, Key, NULL, Key);
 		}
 
-		if (left != right) // если границы не сомкнулись
+		if (LeftValueBorder!= RightValueBorder) // если границы не сомкнулись
 		{
-			Depositors[right] = Depositors[left]; // перемещаем элемент [left] на место [right]
-			right--; // сдвигаем правую границу вправо
+			Depositors[RightValueBorder] = Depositors[LeftValueBorder]; // перемещаем элемент [LeftValueBorder] на место [RightValueBorder]
+			RightValueBorder--; // сдвигаем правую границу вправо
 		}
 	}
-	Depositors[left] = pivot; // ставим разрешающий элемент на место
-	pivot = Depositors[left];
-	int tempLeft = left;
-	left = l_hold;
-	right = r_hold;
+	Depositors[LeftValueBorder] = Pivot; // ставим разрешающий элемент на место
+	Pivot = Depositors[LeftValueBorder];
+	int tempLeftValueBorder= LeftValueBorder;
+	LeftValueBorder= l_hold;
+	RightValueBorder = r_hold;
 
-	checkOptionValue = CheckEqualValues(Depositors[left], pivot, key, NULL, key);
+	checkOptionValue = CheckEqualValues(Depositors[LeftValueBorder], Pivot, Key, NULL, Key);
 	if (checkOptionValue == LESS) // Рекурсивно вызываем сортировку для левой и правой части массива
 	{
-		quickSort(Depositors, left, tempLeft - 1, key);
+		QuickSort(Depositors, LeftValueBorder, tempLeftValueBorder- 1, Key);
 	}
 
-	checkOptionValue = CheckEqualValues(Depositors[right], pivot, key, NULL, key);
+	checkOptionValue = CheckEqualValues(Depositors[RightValueBorder], Pivot, Key, NULL, Key);
 	if (checkOptionValue == MORE)
 	{
-		quickSort(Depositors, tempLeft + 1, right, key);
+		QuickSort(Depositors, tempLeftValueBorder+ 1, RightValueBorder, Key);
 	}
 }
 
@@ -350,104 +329,109 @@ bool IsEqualDepositors(std::vector<Depositor>& DepositorsArray, Depositor& FindD
 }
 
 
-void findDepositorsByValue(TreeDepositors* p, Depositor k, std::vector<Depositor>& FinderDepositors) // поиск ключа k в дереве p
+void FindDepositorsByValue(TreeDepositors* TreeNode, Depositor Key, std::vector<Depositor>& FinderDepositors) // поиск ключа k в дереве p
 {
-	if (!p) return; // в пустом дереве можно не искать
+	if (!TreeNode) return; // в пустом дереве можно не искать
 
-	CheckOptions checkValue = CheckEqualTreeValues(k, p->depositor, p->Option);
+	CheckOptions checkValue = CheckEqualTreeValues(Key, TreeNode->DepositorData, TreeNode->Option);
 	if (checkValue == EQUAL)
 	{
-		if (!IsEqualDepositors(FinderDepositors, p->depositor))
+		if (!IsEqualDepositors(FinderDepositors, TreeNode->DepositorData))
 		{
-			FinderDepositors.push_back(p->depositor);
-			findDepositorsByValue(p->left, k, FinderDepositors);
+			FinderDepositors.push_back(TreeNode->DepositorData);
+			FindDepositorsByValue(TreeNode->left, Key, FinderDepositors);
 		}
 	}
 
 	if (checkValue == LESS)
-		findDepositorsByValue(p->left, k, FinderDepositors);
+		FindDepositorsByValue(TreeNode->left, Key, FinderDepositors);
 	else
-		findDepositorsByValue(p->right, k, FinderDepositors);
+		FindDepositorsByValue(TreeNode->right, Key, FinderDepositors);
 }
 
-TreeDepositors* find(TreeDepositors* p, Depositor k, std::vector<Depositor>& FinderDepositors) // поиск ключа k в дереве p
+TreeDepositors* find(TreeDepositors* TreeNode, Depositor Key, std::vector<Depositor>& FinderDepositors) // поиск ключа k в дереве p
 {
-	if (!p) return 0; // в пустом дереве можно не искать
-	CheckOptions checkValue = CheckEqualTreeValues(k, p->depositor, p->Option);
+	if (!TreeNode) return 0; // в пустом дереве можно не искать
+
+	CheckOptions checkValue = CheckEqualTreeValues(Key, TreeNode->DepositorData, TreeNode->Option);
 	if (checkValue == EQUAL)
 	{
-		if (!IsEqualDepositors(FinderDepositors, p->depositor))
-			return p;
+		if (!IsEqualDepositors(FinderDepositors, TreeNode->DepositorData))
+			return TreeNode;
 	}
 
 	if (checkValue == LESS)
-		return find(p->left, k, FinderDepositors);
+		return find(TreeNode->left, Key, FinderDepositors);
 	else
-		return find(p->right, k, FinderDepositors);
+		return find(TreeNode->right, Key, FinderDepositors);
 }
 
-int getsize(TreeDepositors* p) // обертка для поля size, работает с пустыми деревьями (t=NULL)
+int GetSize(TreeDepositors* TreeNode) // обертка для поля size, работает с пустыми деревьями (t=NULL)
 {
-	if (!p) return 0;
-	return p->size;
+	if (!TreeNode) return 0;
+	return TreeNode->DepthNodes;
 }
 
-void fixsize(TreeDepositors* p) // установление корректного размера дерева
+void FixSizeNode(TreeDepositors* TreeNode) // установление корректного размера дерева
 {
-	p->size = getsize(p->left) + getsize(p->right) + 1;
+	TreeNode->DepthNodes = GetSize(TreeNode->left) + GetSize(TreeNode->right) + 1;
 }
 
-TreeDepositors* rotateright(TreeDepositors* p) // правый поворот вокруг узла p
+TreeDepositors* RotateRightTrees(TreeDepositors* TreeNode) // правый поворот вокруг узла p
 {
-	TreeDepositors* q = p->left;
-	if (!q) return p;
-	p->left = q->right;
-	q->right = p;
-	q->size = p->size;
-	fixsize(p);
+	TreeDepositors* q = TreeNode->left;
+
+	if (!q) return TreeNode;
+	TreeNode->left = q->right;
+	q->right = TreeNode;
+	q->DepthNodes = TreeNode->DepthNodes;
+	FixSizeNode(TreeNode);
+
 	return q;
 }
 
-TreeDepositors* rotateleft(TreeDepositors* q) // левый поворот вокруг узла q
+TreeDepositors* RotateLeftTrees(TreeDepositors* q) // левый поворот вокруг узла q
 {
 	TreeDepositors* p = q->right;
+
 	if (!p) return q;
 	q->right = p->left;
 	p->left = q;
-	p->size = q->size;
-	fixsize(q);
+	p->DepthNodes = q->DepthNodes;
+	FixSizeNode(q);
+
 	return p;
 }
 
-TreeDepositors* insertroot(TreeDepositors* p, Depositor k, int Option) // вставка нового узла с ключом k в корень дерева p 
+TreeDepositors* InsertRoot(TreeDepositors* TreeNode, Depositor Key, int Option) // вставка нового узла с ключом k в корень дерева p 
 {
-	if (!p) return new TreeDepositors(Option, k);
+	if (!TreeNode) return new TreeDepositors(Option, Key);
 
-	CheckOptions checkValue = CheckEqualTreeValues(k, p->depositor, p->Option);
+	CheckOptions checkValue = CheckEqualTreeValues(Key, TreeNode->DepositorData, TreeNode->Option);
 	if (checkValue == LESS)
 	{
-		p->left = insertroot(p->left, k, Option);
-		return rotateright(p);
+		TreeNode->left = InsertRoot(TreeNode->left, Key, Option);
+		return RotateRightTrees(TreeNode);
 	}
 	else
 	{
-		p->right = insertroot(p->right, k, Option);
-		return rotateleft(p);
+		TreeNode->right = InsertRoot(TreeNode->right, Key, Option);
+		return RotateLeftTrees(TreeNode);
 	}
 }
 
-TreeDepositors* insert(TreeDepositors* p, Depositor k, int Option) // рандомизированная вставка нового узла с ключом k в дерево p
+TreeDepositors* InsertNodeRandom(TreeDepositors* TreeNode, Depositor Key, int Option) // рандомизированная вставка нового узла с ключом k в дерево p
 {
-	if (!p) return new TreeDepositors(Option, k);
-	if (rand() % (p->size + 1) == 0)
-		return insertroot(p, k, Option);
-	CheckOptions checkValue = CheckEqualTreeValues(p->depositor, k, p->Option);
+	if (!TreeNode) return new TreeDepositors(Option, Key);
+	if (rand() % (TreeNode->DepthNodes + 1) == 0)
+		return InsertRoot(TreeNode, Key, Option);
+	CheckOptions checkValue = CheckEqualTreeValues(TreeNode->DepositorData, Key, TreeNode->Option);
 	if (checkValue == MORE)
-		p->left = insert(p->left, k, Option);
+		TreeNode->left = InsertNodeRandom(TreeNode->left, Key, Option);
 	else
-		p->right = insert(p->right, k, Option);
-	fixsize(p);
-	return p;
+		TreeNode->right = InsertNodeRandom(TreeNode->right, Key, Option);
+	FixSizeNode(TreeNode);
+	return TreeNode;
 }
 
 
@@ -497,11 +481,11 @@ void SearchDepositorByField(std::vector<Depositor>& Depositors)
 	}
 	for (int i = 0; i < Depositors.size(); i++)
 	{
-		Tree = insert(Tree, Depositors[i], sub_m_count);
+		Tree = InsertNodeRandom(Tree, Depositors[i], sub_m_count);
 	}
 
 	auto start = sc.now();     // устанавливаем начало отсчета времени события
-	findDepositorsByValue(Tree, TempDepos, FinderDepositors);
+	FindDepositorsByValue(Tree, TempDepos, FinderDepositors);
 	auto end = sc.now();       // устанавливаем конец отсчета времени события
 	auto time_span = static_cast<std::chrono::duration<double>>(end - start);   // высчитываем время, затраченное на событие
 	if (FinderDepositors.size() != 0)
@@ -521,25 +505,25 @@ void SearchDepositorByField(std::vector<Depositor>& Depositors)
 		SetColor(0, 7);
 	}
 	system("pause");
-	menu(Depositors);
+	Menu(Depositors);
 }
 
 void SortDepositorsList(std::vector<Depositor>& Depositors)
 {
 	std::chrono::steady_clock sc;
 	auto start = sc.now();     // устанавливаем начало отсчета времени события
-	quickSort(Depositors, NULL, Depositors.size() - 1, sub_m_count + 1);
+	QuickSort(Depositors, NULL, Depositors.size() - 1, sub_m_count + 1);
 	auto end = sc.now();       // устанавливаем конец отсчета времени события
 	auto time_span = static_cast<std::chrono::duration<double>>(end - start);   // высчитываем время, затраченное на событие
 
 	PrintDepositorsList(Depositors);
 	std::cout << "Время, затраченное на сортировку: " << time_span.count() << " секунд" << std::endl << std::endl;
 	system("pause");
-	menu(Depositors);
+	Menu(Depositors);
 
 }
 
-void sub_conf_val(std::vector<Depositor>& Depositors, std::string Option) // выбор после подтверждения в зависимости от значения текущего
+void Sub_conf_val(std::vector<Depositor>& Depositors, std::string Option) // выбор после подтверждения в зависимости от значения текущего
 {
 	if (Option == "Sort")
 	{
@@ -549,7 +533,7 @@ void sub_conf_val(std::vector<Depositor>& Depositors, std::string Option) // в�
 		}
 		else
 		{
-			menu(Depositors);
+			Menu(Depositors);
 		}
 	}
 	else if (Option == "Search")
@@ -561,12 +545,12 @@ void sub_conf_val(std::vector<Depositor>& Depositors, std::string Option) // в�
 		}
 		else
 		{
-			menu(Depositors);
+			Menu(Depositors);
 		}
 	}
 }
 
-void sub_menu_choice(std::vector<Depositor>& Depositors, std::string Option) // в зависимости от стрелок изменяем меню
+void Sub_menu_choice(std::vector<Depositor>& Depositors, std::string Option) // в зависимости от стрелок изменяем меню
 {
 	int k1;
 	k1 = _getch(); // получаем символ стрелки без вывода знака
@@ -586,10 +570,10 @@ void sub_menu_choice(std::vector<Depositor>& Depositors, std::string Option) // 
 			SubMenu(Depositors, Option);
 			break;
 		case 0xD: // подтвердить
-			sub_conf_val(Depositors, Option);
+			Sub_conf_val(Depositors, Option);
 			break;
 		default:
-			sub_menu_choice(Depositors, Option);
+			Sub_menu_choice(Depositors, Option);
 		}
 	}
 	switch (k1)
@@ -606,10 +590,10 @@ void sub_menu_choice(std::vector<Depositor>& Depositors, std::string Option) // 
 		SubMenu(Depositors, Option);
 		break;
 	case 0xD: // подтвердить
-		sub_conf_val(Depositors, Option);
+		Sub_conf_val(Depositors, Option);
 		break;
 	default:
-		sub_menu_choice(Depositors, Option);
+		Sub_menu_choice(Depositors, Option);
 	}
 }
 
@@ -629,10 +613,10 @@ void SubMenu(std::vector<Depositor>& Depositors, std::string Option)
 		std::cout << SubMenuOptions[i] << std::endl;
 		SetColor(0, 7);
 	}
-	sub_menu_choice(Depositors, Option);
+	Sub_menu_choice(Depositors, Option);
 }
 
-void conf_val(std::vector<Depositor>& Depositors) // выбор после подтверждения в зависимости от значения текущего
+void Conf_val(std::vector<Depositor>& Depositors) // выбор после подтверждения в зависимости от значения текущего
 {
 	switch (m_count)
 	{
@@ -654,10 +638,10 @@ void conf_val(std::vector<Depositor>& Depositors) // выбор после по�
 		break;
 	}
 
-	menu(Depositors);
+	Menu(Depositors);
 }
 
-void menu(std::vector<Depositor>& Depositors) // меню
+void Menu(std::vector<Depositor>& Depositors) // меню
 {
 	system("cls"); // очищаем консоль
 	std::cout << "-----Основное меню-----" << std::endl;
@@ -669,10 +653,10 @@ void menu(std::vector<Depositor>& Depositors) // меню
 		std::cout << MenuOptions[i] << std::endl;
 		SetColor(0, 7);
 	}
-	menu_choice(Depositors);
+	Menu_choice(Depositors);
 }
 
-void menu_choice(std::vector<Depositor>& Depositors) // в зависимости от стрелок изменяем меню
+void Menu_choice(std::vector<Depositor>& Depositors) // в зависимости от стрелок изменяем меню
 {
 	int k1;
 	k1 = _getch(); // получаем символ стрелки без вывода знака
@@ -683,19 +667,19 @@ void menu_choice(std::vector<Depositor>& Depositors) // в зависимост�
 		case 0x48: // стрелка вверх
 			m_count--;
 			if (m_count < 0) m_count = 0;
-			menu(Depositors);
+			Menu(Depositors);
 			break;
 
 		case 0x50: // стрелка вниз
 			m_count++;
 			if (m_count > MenuOptions.size() - 1) m_count = MenuOptions.size() - 1;
-			menu(Depositors);
+			Menu(Depositors);
 			break;
 		case 0xD: // подтвердить
-			conf_val(Depositors);
+			Conf_val(Depositors);
 			break;
 		default:
-			menu_choice(Depositors);
+			Menu_choice(Depositors);
 		}
 	}
 	switch (k1)
@@ -703,19 +687,19 @@ void menu_choice(std::vector<Depositor>& Depositors) // в зависимост�
 	case 0x48: // стрелка вверх
 		m_count--;
 		if (m_count < 0) m_count = 0;
-		menu(Depositors);
+		Menu(Depositors);
 		break;
 
 	case 0x50: // стрелка вниз
 		m_count++;
 		if (m_count > MenuOptions.size() - 1) m_count = MenuOptions.size() - 1;
-		menu(Depositors);
+		Menu(Depositors);
 		break;
 	case 0xD: // подтвердить
-		conf_val(Depositors);
+		Conf_val(Depositors);
 		break;
 	default:
-		menu_choice(Depositors);
+		Menu_choice(Depositors);
 	}
 }
 
@@ -736,7 +720,7 @@ int main()
 
 	FillDepositorsDataBase(Depositors, fin);
 
-	menu(Depositors);
+	Menu(Depositors);
 
 	system("pause");
 	return 0;
