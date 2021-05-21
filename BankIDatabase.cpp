@@ -74,7 +74,7 @@ int FillDepositorsDataBase(std::vector<Depositor>& Depositors, std::ifstream& fi
 {
 	Depositor TempDepositor;
 	std::cout << "....Заполнение записей...." << std::endl;
-	fin.open("DepositorsList.txt");
+	fin.open("DepositorsList1k.txt");
 	if (fin.is_open()) // если файл удачно открыт
 	{
 		while (!fin.eof()) // пока не дошли до конца файла
