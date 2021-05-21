@@ -57,6 +57,7 @@ void Menu_choice(std::vector<Depositor>& Depositors); // прототип мен
 void Menu(std::vector<Depositor>& Depositors); // прототип меню
 void Sub_menu_choice(std::vector<Depositor>& Depositors, std::string Option);
 void SubMenu(std::vector<Depositor>& Depositors, std::string Option);
+void PrintDepositor(const Depositor& Depos);
 int m_count = 0;
 int sub_m_count = 0;
 std::vector<std::string> MenuOptions{ "Показать всех вкладчиков", "Отсортировать вкладчиков", "Поиск вкладчика", "Выход" };
@@ -64,10 +65,15 @@ std::vector<std::string> SubMenuOptions{ "По фамилии", "По имени
 
 const int NotUsed = system("color 70"); // изменения цвета консоли в серый 
 
-void FillDepositorsDataBase(std::vector<Depositor>& Depositors, std::ifstream& fin)
+bool IsDepositorValidData(Depositor CurrentDepositor)
+{
+	return (CurrentDepositor.DepositorNumber > 0) && (CurrentDepositor.DepositorValue > 0) && (CurrentDepositor.DepositDuration > 0);
+}
+
+int FillDepositorsDataBase(std::vector<Depositor>& Depositors, std::ifstream& fin)
 {
 	Depositor TempDepositor;
-	
+	std::cout << "....Заполнение записей...." << std::endl;
 	fin.open("DepositorsList.txt");
 	if (fin.is_open()) // если файл удачно открыт
 	{
@@ -75,7 +81,16 @@ void FillDepositorsDataBase(std::vector<Depositor>& Depositors, std::ifstream& f
 		{
 			fin >> TempDepositor.DepositorSurname >> TempDepositor.DepositorName >> TempDepositor.DepositorFatherName >> TempDepositor.DepositorNumber >> TempDepositor.DepositorValue >> TempDepositor.DepositDuration;
 			fin.ignore(1); // игнорируем перенос строки
-			Depositors.push_back(TempDepositor);
+			if (IsDepositorValidData(TempDepositor))
+			{
+				Depositors.push_back(TempDepositor);
+			}
+			else
+			{
+				std::cout << "Некорректные значения у вкладчика - значения номера, размера и длительности должны быть больше нуля!" << std::endl;
+				PrintDepositor(TempDepositor);
+				return 1;
+			}
 		}
 	}
 	else // если файл открыть не удалось
@@ -83,6 +98,7 @@ void FillDepositorsDataBase(std::vector<Depositor>& Depositors, std::ifstream& f
 		std::cout << "Файл не удалось открыть!" << std::endl;
 	}
 	fin.close(); // закрываем файл
+	return 0;
 }
 
 void PrintTableHeader()
@@ -434,6 +450,16 @@ TreeDepositors* InsertNodeRandom(TreeDepositors* TreeNode, Depositor Key, int Op
 	return TreeNode;
 }
 
+void DeleteTree(TreeDepositors* TreeNode)
+{
+	if (TreeNode)
+	{
+		DeleteTree(TreeNode->left);
+		DeleteTree(TreeNode->right);
+		delete TreeNode->left;
+		delete TreeNode->right;
+	}
+}
 
 
 void SearchDepositorByField(std::vector<Depositor>& Depositors)
@@ -505,6 +531,8 @@ void SearchDepositorByField(std::vector<Depositor>& Depositors)
 		SetColor(0, 7);
 	}
 	system("pause");
+	DeleteTree(Tree);
+	delete Tree;
 	Menu(Depositors);
 }
 
@@ -644,7 +672,7 @@ void Conf_val(std::vector<Depositor>& Depositors) // выбор после по�
 void Menu(std::vector<Depositor>& Depositors) // меню
 {
 	system("cls"); // очищаем консоль
-	std::cout << "-----Основное меню-----" << std::endl;
+	std::cout << "-----Основное меню-----" << "                 Количество записей: " << Depositors.size() << std::endl;
 	for (int i = 0; i < MenuOptions.size(); i++)
 	{
 		if (i == m_count)
@@ -718,10 +746,9 @@ int main()
 	SetConsoleCP(1251); // локализация ввода строки
 	SetConsoleOutputCP(1251); // локализация вывода строки
 
-	FillDepositorsDataBase(Depositors, fin);
-
-	Menu(Depositors);
-
-	system("pause");
+	if (FillDepositorsDataBase(Depositors, fin) == 0)
+	{
+		Menu(Depositors);
+	}
 	return 0;
 }
